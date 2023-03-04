@@ -1,0 +1,31 @@
+[package]
+name = "derivit"
+version = "0.0.0"
+edition = { workspace = true }
+homepage = { workspace = true }
+repository = { workspace = true }
+license = { workspace = true }
+description = "A placeholder"
+
+[workspace]
+members = [
+    "crates/*"
+]
+
+[workspace.package]
+edition = "2021"
+repository = "https://github.com/al8n/derivit"
+homepage = "https://github.com/al8n/derivit"
+license = "Apache-2.0/MIT"
+
+[workspace.dependencies]
+heck = "0.4"
+darling = "0.14"
+syn = { version = "1", features = ["full"] }
+quote = "1"
+proc-macro2 = "1"
+
+[lib]
+proc-macro = true
+
+[dependencies]
