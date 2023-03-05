@@ -1,6 +1,6 @@
 [package]
 name = "derivit"
-version = "0.0.1"
+version = { workspace = true }
 edition = { workspace = true }
 homepage = { workspace = true }
 repository = { workspace = true }
@@ -13,6 +13,7 @@ members = [
 ]
 
 [workspace.package]
+version = "0.1.1"
 edition = "2021"
 repository = "https://github.com/al8n/derivit"
 homepage = "https://github.com/al8n/derivit"
@@ -24,6 +25,7 @@ darling = "0.14"
 syn = { version = "1", features = ["full"] }
 quote = "1"
 proc-macro2 = "1"
+prettyplease = "0.1"
 
 [dependencies]
 enumit = { path = "crates/enumit", version = "0.0.2" }

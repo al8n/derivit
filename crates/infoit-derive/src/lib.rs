@@ -12,6 +12,7 @@ struct Info {
   vis_: Option<syn::Visibility>,
   #[darling(default)]
   tags: Tags,
+  debug: Option<derivit_core::Debug>,
 }
 
 #[derive(Default, serde::Serialize, serde::Deserialize)]
@@ -144,7 +145,7 @@ pub fn info(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
         "struct"
       };
 
-      quote! {
+      let ts = quote! {
         impl #impl_generics #name #ty_generics #where_clause {
           #vis const INFO: ::infoit::StructInfo = ::infoit::StructInfo {
             name: #name_str,
@@ -155,24 +156,23 @@ pub fn info(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
             ty: #ty,
           };
         }
+      };
+
+      if let Some(debug) = &info.debug {
+        match debug.write(&ts) {
+          Ok(_) => {}
+          Err(e) => return e.to_compile_error().into(),
+        }
       }
-      .into()
+
+      ts.into()
     }
-    syn::Data::Enum(_data) => {
-      // let variants = Vec::new();
-      // for v in &data.variants {
-      //   let mut variant_fields = Vec::new();
-      //   for f in &v.fields {
-      //     let info_field = match InfoField::from_field(f) {
-      //       Ok(info_field) => info_field,
-      //       Err(e) => return e.write_errors().into(),
-      //     };
-      //     variant_fields.push(info_field);
-      //   }
-      //   fields.insert(variant_fields);
-      // }
-      quote!().into()
-    }
+    syn::Data::Enum(_data) => syn::Error::new_spanned(
+      input,
+      "enums are not supported currently, will be supported in future versions",
+    )
+    .to_compile_error()
+    .into(),
     syn::Data::Union(data) => syn::Error::new_spanned(data.union_token, "unions are not supported")
       .to_compile_error()
       .into(),

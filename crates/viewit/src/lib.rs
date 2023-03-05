@@ -20,6 +20,7 @@ struct ViewItDerive {
   setter: StructSetterOptions,
   #[darling(default)]
   getter: StructGetterOptions,
+  debug: Option<derivit_core::Debug>,
 }
 
 impl ViewIt for ViewItDerive {
@@ -38,6 +39,7 @@ struct ViewItAttribute {
   vis_all: Option<syn::Visibility>,
   setter: StructSetterOptions,
   getter: StructGetterOptions,
+  debug: Option<derivit_core::Debug>,
 }
 
 impl ViewIt for ViewItAttribute {
@@ -57,6 +59,7 @@ impl FromMeta for ViewItAttribute {
     let mut vis_all: (bool, Option<syn::Visibility>) = (false, None);
     let mut getters = (false, None);
     let mut setters = (false, None);
+    let mut debug = (false, None);
 
     for item in items {
       match item {
@@ -66,6 +69,7 @@ impl FromMeta for ViewItAttribute {
             "vis_all" => derivit_core::parser::Parser::parse(&name, inner, &mut vis_all)?,
             "setters" => derivit_core::parser::Parser::parse(&name, inner, &mut setters)?,
             "getters" => derivit_core::parser::Parser::parse(&name, inner, &mut getters)?,
+            "debug" => derivit_core::parser::Parser::parse(&name, inner, &mut debug)?,
             other => {
               return Err(
                 darling::Error::unknown_field_with_alts(other, &["getters", "setters", "vis_all"])
@@ -84,6 +88,7 @@ impl FromMeta for ViewItAttribute {
       vis_all: vis_all.1,
       setter: setters.1.unwrap_or_default(),
       getter: getters.1.unwrap_or_default(),
+      debug: debug.1,
     })
   }
 }
@@ -214,15 +219,21 @@ pub fn view(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
           Err(e) => return e.write_errors().into(),
         };
 
-      quote! {
+      let ts = quote! {
         impl #impl_generics #name #ty_generics #where_clause {
 
           #(#struct_getters)*
 
           #(#struct_setters)*
         }
+      };
+      if let Some(ref debug) = viewit.debug {
+        if let Err(e) = debug.write(&ts) {
+          return e.to_compile_error().into();
+        }
       }
-      .into()
+
+      ts.into()
     }
     _ => unreachable!(),
   }
@@ -264,7 +275,7 @@ pub fn viewit(
           Err(e) => return e.write_errors().into(),
         };
 
-      quote! {
+      let ts = quote! {
         #(#struct_attrs)*
         #vis struct #name #generics {
           #(#struct_fields),*
@@ -276,8 +287,15 @@ pub fn viewit(
 
           #(#struct_setters)*
         }
+      };
+
+      if let Some(ref debug) = viewit.debug {
+        if let Err(e) = debug.write(&ts) {
+          return e.to_compile_error().into();
+        }
       }
-      .into()
+
+      ts.into()
     }
     syn::Fields::Unnamed(fields) => {
       syn::Error::new_spanned(fields, "tuple structs are not supported")
