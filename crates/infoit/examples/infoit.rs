@@ -11,5 +11,3 @@ pub(crate) struct MyView {
 pub(crate) struct MyTupleView(u64, u32);
 
 fn main() {}
-
-

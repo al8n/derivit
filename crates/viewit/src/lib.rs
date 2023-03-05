@@ -115,7 +115,7 @@ fn handle_fields<'a>(
 
     match (viewit.getter().ignore, field.getter.ignore) {
       (true, true) | (false, true) | (true, false) => {}
-      (false, false)  => {
+      (false, false) => {
         let vis = field.getter.vis.as_ref().unwrap_or_else(|| {
           viewit
             .getter()
@@ -145,7 +145,7 @@ fn handle_fields<'a>(
 
     match (viewit.setter().ignore, field.setter.ignore) {
       (true, true) | (false, true) | (true, false) => {}
-      (false, false)  => {
+      (false, false) => {
         let vis = field.setter.vis.as_ref().unwrap_or_else(|| {
           viewit
             .setter()
@@ -291,4 +291,3 @@ pub fn viewit(
     .into(),
   }
 }
-

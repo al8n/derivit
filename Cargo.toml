@@ -1,6 +1,6 @@
 [package]
 name = "derivit"
-version = "0.0.0"
+version = "0.0.1"
 edition = { workspace = true }
 homepage = { workspace = true }
 repository = { workspace = true }
@@ -25,7 +25,8 @@ syn = { version = "1", features = ["full"] }
 quote = "1"
 proc-macro2 = "1"
 
-[lib]
-proc-macro = true
-
 [dependencies]
+enumit = { path = "crates/enumit", version = "0.0.2" }
+fromit = { path = "crates/fromit", version = "0.0.3" }
+infoit = { path = "crates/infoit", version = "0.0.0" }
+viewit = { path = "crates/viewit", version = "0.0.1" }

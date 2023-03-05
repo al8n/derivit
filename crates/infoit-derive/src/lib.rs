@@ -1,8 +1,7 @@
+use darling::{FromDeriveInput, FromField, FromMeta, ToTokens};
 use indexmap::IndexMap;
-use syn::{parse_macro_input, DeriveInput};
 use quote::quote;
-use darling::{FromDeriveInput, FromMeta, ToTokens, FromField};
-
+use syn::{parse_macro_input, DeriveInput};
 
 #[derive(FromDeriveInput)]
 #[darling(attributes(info))]
@@ -37,37 +36,42 @@ impl FromMeta for Tags {
     for item in items.iter() {
       match item {
         syn::NestedMeta::Meta(inner) => {
-          let key = inner.path().get_ident().ok_or_else(|| darling::Error::custom("missing ident").with_span(inner))?.to_string();
+          let key = inner
+            .path()
+            .get_ident()
+            .ok_or_else(|| darling::Error::custom("missing ident").with_span(inner))?
+            .to_string();
           let value = match inner {
-            syn::Meta::NameValue(inner) => {
-              match &inner.lit {
-                syn::Lit::Str(v) => v.value(),
-                syn::Lit::ByteStr(bs) => String::from_utf8_lossy(&bs.value()).to_string(),
-                syn::Lit::Byte(b) => b.value().to_string(),
-                syn::Lit::Char(c) => c.value().to_string(),
-                syn::Lit::Int(v) => v.base10_digits().to_string(),
-                syn::Lit::Float(f) => f.base10_digits().to_string(),
-                syn::Lit::Bool(b) => b.value.to_string(),
-                syn::Lit::Verbatim(v) => v.to_string(),
-              }
+            syn::Meta::NameValue(inner) => match &inner.lit {
+              syn::Lit::Str(v) => v.value(),
+              syn::Lit::ByteStr(bs) => String::from_utf8_lossy(&bs.value()).to_string(),
+              syn::Lit::Byte(b) => b.value().to_string(),
+              syn::Lit::Char(c) => c.value().to_string(),
+              syn::Lit::Int(v) => v.base10_digits().to_string(),
+              syn::Lit::Float(f) => f.base10_digits().to_string(),
+              syn::Lit::Bool(b) => b.value.to_string(),
+              syn::Lit::Verbatim(v) => v.to_string(),
             },
-            syn::Meta::Path(path) => {
-              path.get_ident().ok_or_else(|| darling::Error::custom("missing ident").with_span(path))?.to_string()
-            }
+            syn::Meta::Path(path) => path
+              .get_ident()
+              .ok_or_else(|| darling::Error::custom("missing ident").with_span(path))?
+              .to_string(),
             syn::Meta::List(l) => {
               let this = Self::from_list(&l.nested.iter().cloned().collect::<Vec<_>>())?;
-              serde_json::to_string(&this).map_err(|e| darling::Error::custom(e.to_string()).with_span(l))?
-            },
+              serde_json::to_string(&this)
+                .map_err(|e| darling::Error::custom(e.to_string()).with_span(l))?
+            }
           };
           map.insert(key, value);
-        },
-        syn::NestedMeta::Lit(inner) => return Err(darling::Error::unsupported_format("literal").with_span(inner)),
+        }
+        syn::NestedMeta::Lit(inner) => {
+          return Err(darling::Error::unsupported_format("literal").with_span(inner))
+        }
       }
     }
     Ok(Self { map })
   }
 }
-
 
 #[derive(FromField)]
 struct InfoField {
@@ -76,8 +80,6 @@ struct InfoField {
   #[darling(default)]
   tags: Tags,
 }
-
-
 
 #[proc_macro_derive(Info, attributes(info))]
 pub fn info(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
@@ -118,7 +120,7 @@ pub fn info(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
                 size: ::core::mem::size_of::<#ty>(),
               }
             }
-          },
+          }
           None => {
             let name_str = ctr.to_string();
             ctr += 1;
@@ -131,7 +133,7 @@ pub fn info(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
                 size: ::core::mem::size_of::<#ty>(),
               }
             }
-          },
+          }
         });
       }
       let ty = if data.fields.is_empty() {
@@ -153,8 +155,9 @@ pub fn info(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
             ty: #ty,
           };
         }
-      }.into()
-    },
+      }
+      .into()
+    }
     syn::Data::Enum(_data) => {
       // let variants = Vec::new();
       // for v in &data.variants {
@@ -169,12 +172,12 @@ pub fn info(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
       //   fields.insert(variant_fields);
       // }
       quote!().into()
-    },
-    syn::Data::Union(data) => syn::Error::new_spanned(data.union_token, "unions are not supported").to_compile_error().into(),
+    }
+    syn::Data::Union(data) => syn::Error::new_spanned(data.union_token, "unions are not supported")
+      .to_compile_error()
+      .into(),
   }
-  
 }
-
 
 #[inline]
 fn get_type_name(ty: &syn::Type) -> proc_macro2::TokenStream {
