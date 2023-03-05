@@ -5,11 +5,11 @@ edition = { workspace = true }
 homepage = { workspace = true }
 repository = { workspace = true }
 license = { workspace = true }
-description = "a placeholder"
+description = "A library for creating infomation for structs and enums."
 
 [[example]]
 name = "infoit"
-# required-features = ["nightly"]
+
 
 [features]
 default = ["serde", "infoit-derive/default"]

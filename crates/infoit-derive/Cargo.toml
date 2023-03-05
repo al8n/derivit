@@ -5,7 +5,7 @@ edition = { workspace = true }
 homepage = { workspace = true }
 repository = { workspace = true }
 license = { workspace = true }
-description = "a placeholder"
+description = "Derive macros for infoit, cannot be used standalone"
 
 [lib]
 proc-macro = true

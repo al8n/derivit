@@ -1,7 +1,11 @@
 [package]
 name = "derivit-core"
 version = "0.1.0"
-edition = "2021"
+edition = { workspace = true }
+homepage = { workspace = true }
+repository = { workspace = true }
+license = { workspace = true }
+description = "Common code for the derivit crates."
 
 [dependencies]
 syn = { workspace = true }
