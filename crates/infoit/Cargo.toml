@@ -1,0 +1,22 @@
+[package]
+name = "infoit"
+version = "0.0.0"
+edition = { workspace = true }
+homepage = { workspace = true }
+repository = { workspace = true }
+license = { workspace = true }
+description = "a placeholder"
+
+[[example]]
+name = "infoit"
+# required-features = ["nightly"]
+
+[features]
+default = ["serde", "infoit-derive/default"]
+nightly = ["infoit-derive/nightly"]
+
+[dependencies]
+viewit = { path = "../viewit", version = "0.0.1" }
+infoit-derive = { path = "../infoit-derive", version = "0.0.0", optional = true, default-features = false }
+
+serde = { version = "1", optional = true, features = ["derive"] }
