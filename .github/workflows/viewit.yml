@@ -1,0 +1,29 @@
+name: viewit
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - crates/viewit/**
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - crates/viewit/**
+  
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build
+      run: cargo build --verbose
+      working-directory: crates/viewit
+    - name: Run tests
+      run: cargo test --verbose
+      working-directory: crates/viewit

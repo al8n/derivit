@@ -13,7 +13,7 @@ members = [
 ]
 
 [workspace.package]
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 repository = "https://github.com/al8n/derivit"
 homepage = "https://github.com/al8n/derivit"
@@ -26,9 +26,15 @@ syn = { version = "1", features = ["full"] }
 quote = "1"
 proc-macro2 = "1"
 prettyplease = "0.1"
+enumit = { path = "crates/enumit", version = "0.1.2" }
+fromit = { path = "crates/fromit", version = "0.1.2" }
+infoit = { path = "crates/infoit", version = "0.1.2" }
+infoit-derive = { path = "crates/infoit-derive", version = "0.1.2" }
+viewit = { path = "crates/viewit", version = "0.1.2" }
+derivit-core = { path = "crates/derivit-core", version = "0.1.2" }
 
 [dependencies]
-enumit = { path = "crates/enumit", version = "0.0.2" }
-fromit = { path = "crates/fromit", version = "0.0.3" }
-infoit = { path = "crates/infoit", version = "0.0.0" }
-viewit = { path = "crates/viewit", version = "0.0.1" }
+enumit = { workspace = true }
+fromit = { workspace = true }
+infoit = { workspace = true }
+viewit = { workspace = true }

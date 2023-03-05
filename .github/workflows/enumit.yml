@@ -1,0 +1,29 @@
+name: enumit 
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - crates/enumit/**
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - crates/enumit/**
+  
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build
+      run: cargo build --verbose
+      working-directory: crates/enumit
+    - name: Run tests
+      run: cargo test --verbose
+      working-directory: crates/enumit

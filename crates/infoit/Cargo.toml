@@ -12,11 +12,10 @@ name = "infoit"
 
 
 [features]
-default = ["serde", "infoit-derive/default"]
-nightly = ["infoit-derive/nightly"]
+default = ["serde"]
 
 [dependencies]
-viewit = { path = "../viewit", version = "0.0.1" }
-infoit-derive = { path = "../infoit-derive", version = "0.0.0", optional = true, default-features = false }
+viewit = { workspace = true }
+infoit-derive = { workspace = true }
 
 serde = { version = "1", optional = true, features = ["derive"] }
