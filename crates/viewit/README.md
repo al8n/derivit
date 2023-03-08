@@ -1,16 +1,12 @@
 <div align="center">
-<h1>Stretto</h1>
+<h1>ViewIt</h1>
 </div>
 <div align="center">
 
-Stretto is a pure Rust implementation for https://github.com/dgraph-io/ristretto. 
-
-A high performance thread-safe memory-bound Rust cache.
-
-English | [简体中文](README-zh_hans.md)
+ViewIt contains a derive macro and a attribute macro to help you avoid writing boilerplate code. See introduction for more details.
 
 [<img alt="github" src="https://img.shields.io/badge/GITHUB-Viewit-8da0cb?style=for-the-badge&logo=Github" height="22">][Github-url]
-[<img alt="Build" src="https://img.shields.io/github/workflow/status/al8n/stretto/CI/main?logo=Github-Actions&style=for-the-badge" height="22">][CI-url]
+[<img alt="Build" src="https://img.shields.io/github/actions/workflow/status/al8n/derivit/viewit.yml?logo=Github-Actions&style=for-the-badge" height="22">][CI-url]
 
 
 [<img alt="docs.rs" src="https://img.shields.io/badge/docs.rs-viewit-66c2a5?style=for-the-badge&labelColor=555555&logo=data:image/svg+xml;base64,PHN2ZyByb2xlPSJpbWciIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDUxMiA1MTIiPjxwYXRoIGZpbGw9IiNmNWY1ZjUiIGQ9Ik00ODguNiAyNTAuMkwzOTIgMjE0VjEwNS41YzAtMTUtOS4zLTI4LjQtMjMuNC0zMy43bC0xMDAtMzcuNWMtOC4xLTMuMS0xNy4xLTMuMS0yNS4zIDBsLTEwMCAzNy41Yy0xNC4xIDUuMy0yMy40IDE4LjctMjMuNCAzMy43VjIxNGwtOTYuNiAzNi4yQzkuMyAyNTUuNSAwIDI2OC45IDAgMjgzLjlWMzk0YzAgMTMuNiA3LjcgMjYuMSAxOS45IDMyLjJsMTAwIDUwYzEwLjEgNS4xIDIyLjEgNS4xIDMyLjIgMGwxMDMuOS01MiAxMDMuOSA1MmMxMC4xIDUuMSAyMi4xIDUuMSAzMi4yIDBsMTAwLTUwYzEyLjItNi4xIDE5LjktMTguNiAxOS45LTMyLjJWMjgzLjljMC0xNS05LjMtMjguNC0yMy40LTMzLjd6TTM1OCAyMTQuOGwtODUgMzEuOXYtNjguMmw4NS0zN3Y3My4zek0xNTQgMTA0LjFsMTAyLTM4LjIgMTAyIDM4LjJ2LjZsLTEwMiA0MS40LTEwMi00MS40di0uNnptODQgMjkxLjFsLTg1IDQyLjV2LTc5LjFsODUtMzguOHY3NS40em0wLTExMmwtMTAyIDQxLjQtMTAyLTQxLjR2LS42bDEwMi0zOC4yIDEwMiAzOC4ydi42em0yNDAgMTEybC04NSA0Mi41di03OS4xbDg1LTM4Ljh2NzUuNHptMC0xMTJsLTEwMiA0MS40LTEwMi00MS40di0uNmwxMDItMzguMiAxMDIgMzguMnYuNnoiPjwvcGF0aD48L3N2Zz4K" height="20">][doc-url]
@@ -22,6 +18,214 @@ English | [简体中文](README-zh_hans.md)
 
 </div>
 
+## Introduction
+By default, fields of a struct in Rust are private, but add visibility for the fields one by one is annoying, so the `viewit` attribute macro will help you do such things.
+
+Without `viewit`:
+```rust
+pub struct Foo {
+  pub f1: u8,
+  pub f2: u16,
+  pub f3: String,
+  pub f4: Vec<u8>
+}
+```
+
+With `viewit`:
+```rust
+use viewit::viewit;
+
+#[viewit]
+pub struct Foo {
+  f1: u8,
+  f2: u16,
+  f3: String,
+  f4: Vec<u8>
+}
+```
+
+By default, `viewit` will use the struct's visibility for each field, and the expand code is equal to the below.
+
+```rust
+pub struct Foo {
+    pub f1: u8,
+    pub f2: u16,
+    pub f3: String,
+    pub f4: Vec<u8>,
+}
+impl Foo {
+    #[inline]
+    pub fn f1(&self) -> &u8 {
+        &self.f1
+    }
+    #[inline]
+    pub fn f2(&self) -> &u16 {
+        &self.f2
+    }
+    #[inline]
+    pub fn f3(&self) -> &String {
+        &self.f3
+    }
+    #[inline]
+    pub fn f4(&self) -> &Vec<u8> {
+        &self.f4
+    }
+    #[inline]
+    pub fn set_f1(mut self, val: u8) -> Self {
+        self.f1 = val;
+        self
+    }
+    #[inline]
+    pub fn set_f2(mut self, val: u16) -> Self {
+        self.f2 = val;
+        self
+    }
+    #[inline]
+    pub fn set_f3(mut self, val: String) -> Self {
+        self.f3 = val;
+        self
+    }
+    #[inline]
+    pub fn set_f4(mut self, val: Vec<u8>) -> Self {
+        self.f4 = val;
+        self
+    }
+}
+```
+
+
+### Advance Usages
+`viewit` have mutliple useful configs to help you generate what you want flexibly.
+
+```rust
+
+use viewit::viewit;
+
+struct FromString {
+  src: String,
+}
+
+impl From<&String> for FromString {
+  fn from(src: &String) -> Self {
+    Self { src: src.clone() }
+  }
+}
+
+
+fn vec_to_string(src: &[u8]) -> String {
+  String::from_utf8_lossy(src).to_string()
+}
+
+#[viewit(
+  // set this, then this visibility will be applied to the fields
+  vis_all = "pub(crate)",
+  // this will not generate setters
+  setters(
+    // change the prefix for all setters
+    prefix = "with",
+    // change the setters fn style, available values here are ref, into, tryinto or move
+    style = "ref",
+    // if you do not want to generate getters, you can use skip
+    // skip, 
+  ),
+  getters(
+    // change the prefix for all getters
+    prefix = "get",
+    // change the getters fn style, available values here are ref and move
+    style = "ref",
+    // if you do not want to generate getters, you can use skip
+    // skip,
+  ),
+  // print the generated code to std out, other available values here are: stderr or "path/to/output/file"
+  debug = "stdout"
+)]
+struct Foo {
+  #[viewit(
+    getter(
+      style = "move",
+      rename = "get_first_field",
+      vis = "pub" // we can custom field getter
+    ),
+    setter(
+      skip, // we do not want the setter for the field, then we skip it.
+    )
+  )]
+  f1: u8,
+  #[viewit(
+    getter(
+      skip, // we do not want the getter for the field, then we skip it
+    )
+  )]
+  f2: u16,
+
+  #[viewit(
+    getter(
+      result(
+        // sometimes we may want to convert the f4 field to a generic type
+        type = "T",
+        converter(
+          style = "ref", // take the ownership of the field
+          fn = "T::from", // the fn used to do the conversion
+        ),
+        // set the trait bound
+        bound = "T: for<'a> From<&'a String>"
+      )
+    )
+  )]
+  f3: String,
+
+  #[viewit(
+    getter(
+      result(
+        // we want to convert the f3 field to String
+        type = "String",
+        converter(
+          style = "ref", // take the reference of the field
+          fn = "vec_to_string" // the fn used to do the conversion
+        ),
+      )
+    )
+  )]
+  f4: Vec<u8>,
+}
+```
+
+`viewit` will help you to generate the code:
+
+```rust
+struct Foo {
+    pub(crate) f1: u8,
+    pub(crate) f2: u16,
+    pub(crate) f3: String,
+    pub(crate) f4: Vec<u8>,
+}
+impl Foo {
+    #[inline]
+    pub fn get_first_field(&self) -> u8 {
+        self.f1
+    }
+    #[inline]
+    pub(crate) fn get_f3<T: for<'a> From<&'a String>>(&self) -> T {
+        T::from(&self.f3)
+    }
+    #[inline]
+    pub(crate) fn get_f4(&self) -> String {
+        vec_to_string(&self.f4)
+    }
+    #[inline]
+    pub(crate) fn with_f2(&mut self, val: u16) {
+        self.f2 = val;
+    }
+    #[inline]
+    pub(crate) fn with_f3(&mut self, val: String) {
+        self.f3 = val;
+    }
+    #[inline]
+    pub(crate) fn with_f4(&mut self, val: Vec<u8>) {
+        self.f4 = val;
+    }
+}
+```
 
 ## License
 

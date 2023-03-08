@@ -16,9 +16,9 @@ trait ViewIt {
 #[darling(attributes(view), supports(struct_named))]
 struct ViewItDerive {
   vis: syn::Visibility,
-  #[darling(default)]
+  #[darling(default, rename = "setters")]
   setter: StructSetterOptions,
-  #[darling(default)]
+  #[darling(default, rename = "getters")]
   getter: StructGetterOptions,
   debug: Option<derivit_core::Debug>,
 }
