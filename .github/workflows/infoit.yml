@@ -20,8 +20,6 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build
-      working-directory: crates/infoit
-      run: cargo build --verbose
+      run: cargo build --verbose -p infoit
     - name: Run tests
-      working-directory: crates/infoit
-      run: cargo test --verbose
+      run: cargo test --verbose -p infoit

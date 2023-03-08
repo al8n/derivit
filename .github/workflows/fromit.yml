@@ -22,8 +22,6 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build
-      run: cargo build --verbose
-      working-directory: crates/fromit
+      run: cargo build --verbose -p fromit
     - name: Run tests
-      run: cargo test --verbose
-      working-directory: crates/fromit
+      run: cargo test --verbose -p fromit
